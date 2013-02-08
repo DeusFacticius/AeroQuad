@@ -177,8 +177,13 @@
 
 
 void processZeroThrottleFunctionFromReceiverCommand() {
+	// do NOT use xmit-factor scaled values for commands
+	// the very low value xmit-factor needed for proper flight on some configs
+	// scales inputs so strongly that it becomes impossible to arm/disarm/calib
+	
+	
   // Disarm motors (left stick lower left corner)
-  if (receiverCommand[ZAXIS] < MINCHECK && motorArmed == ON) {
+  if (receiverCommandSmooth[ZAXIS] < MINCHECK && motorArmed == ON) {
     commandAllMotors(MINCOMMAND);
     motorArmed = OFF;
     inFlight = false;
@@ -195,7 +200,7 @@ void processZeroThrottleFunctionFromReceiverCommand() {
   }    
 
   // Zero Gyro and Accel sensors (left stick lower left, right stick lower right corner)
-  if ((receiverCommand[ZAXIS] < MINCHECK) && (receiverCommand[XAXIS] > MAXCHECK) && (receiverCommand[YAXIS] < MINCHECK)) {
+  if ((receiverCommandSmooth[ZAXIS] < MINCHECK) && (receiverCommandSmooth[XAXIS] > MAXCHECK) && (receiverCommandSmooth[YAXIS] < MINCHECK)) {
     calibrateGyro();
     computeAccelBias();
     storeSensorsZeroToEEPROM();
@@ -205,7 +210,7 @@ void processZeroThrottleFunctionFromReceiverCommand() {
   }   
 
   // Arm motors (left stick lower right corner)
-  if (receiverCommand[ZAXIS] > MAXCHECK && motorArmed == OFF && safetyCheck == ON) {
+  if (receiverCommandSmooth[ZAXIS] > MAXCHECK && motorArmed == OFF && safetyCheck == ON) {
 
     #ifdef OSD_SYSTEM_MENU
       if (menuOwnsSticks) {
@@ -226,7 +231,7 @@ void processZeroThrottleFunctionFromReceiverCommand() {
 
   }
   // Prevents accidental arming of motor output if no transmitter command received
-  if (receiverCommand[ZAXIS] > MINCHECK) {
+  if (receiverCommandSmooth[ZAXIS] > MINCHECK) {
     safetyCheck = ON; 
   }
 }
