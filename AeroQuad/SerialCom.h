@@ -924,6 +924,8 @@ void reportVehicleState() {
     SERIAL_PRINTLN("Mini");
   #elif defined(AeroQuadSTM32)
     SERIAL_PRINTLN(STM32_BOARD_TYPE);
+  #elif defined(MyCustomQuad)
+  	SERIAL_PRINTLN("MyCustomQuad");
   #endif
 
   SERIAL_PRINT("Flight Config: ");

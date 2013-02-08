@@ -68,6 +68,42 @@
 //********* PLATFORM SPECIFIC SECTION ********************
 //********************************************************
 //********************************************************
+
+#ifdef MyCustomQuad
+	#include <Device_I2C.h>
+	
+	#include <Accelerometer_ADXL345.h>
+	#include <Gyroscope_L3G4200D.h>
+	
+	#define LED_Green		13
+	#define LED_Red			12
+	
+	#define RECEIVER_MEGA
+	#define MOTOR_PWM_Timer
+	
+	void initPlatform() {
+		Wire.begin();
+		TWBR = 12;
+	}
+	
+	void initializePlatformSpecificAccelCalibration() {
+		// This seems pretty arbitrary, but copying from the AeroQuad_Mini
+		// config which also uses the ADXL345
+		
+		accelScaleFactor[XAXIS] = 0.0371299982;
+    accelScaleFactor[YAXIS] = -0.0374319982;
+    accelScaleFactor[ZAXIS] = -0.0385979986;
+	}
+	
+	void measureCriticalSensors() {
+		measureGyroSum();
+		measureAccelSum();
+	}
+	
+#endif
+
+
+
 #ifdef AeroQuad_v1
   #define LED_Green 13
   #define LED_Red 12
