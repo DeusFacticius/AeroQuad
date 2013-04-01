@@ -366,3 +366,5 @@ byte fastTransfer = OFF; // Used for troubleshooting
 //////////////////////////////////////////////////////
 
 #endif // _AQ_GLOBAL_HEADER_DEFINITION_H_
+
+

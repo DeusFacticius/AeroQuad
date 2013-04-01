@@ -25,7 +25,7 @@
 #include <SensorsStatus.h>
 #include <Device_I2C.h>
 
-#define GYRO_CALIBRATION_THRESHOLD 
+#define GYRO_CALIBRATION_THRESHOLD 32
 
 #define CTRL_REG1 0x20
 #define CTRL_REG2 0x21
@@ -86,18 +86,26 @@ boolean calibrateGyro();
 void readGyroTemp();
 
 int readGyroReg(byte subaddr) {
+	//Serial.println("Beginning transmission...");
   Wire.beginTransmission(GYRO_ADDR);
+  //Serial.println("Writing subaddr...");
   Wire.write((byte)subaddr);
+  //Serial.println("Ending transmission...");
   Wire.endTransmission();
+  //Serial.println("Delaying...");
   delay(100);
+  //Serial.println("Requesting from gyro...");
   Wire.requestFrom(GYRO_ADDR, 1);
+  //Serial.println("Reading from gyro...");
   return Wire.read();
 }
 
 void initializeGyro() {
+	//Serial.println("Detecting gyro...");
 	if((readGyroReg(0x0F) & 0xFF) == L3G4200D_IDENTITY)
 	  vehicleState |= GYRO_DETECTED;
 	
+  //Serial.println("Updating reg1...");
 	// Turn on all axes, disable power down,
 	// set output data rate to 400Hz, and
 	// bandwidth to 25 cutoff
@@ -105,14 +113,17 @@ void initializeGyro() {
   	(DR1_FLG | PD_FLG | XEN_FLG | YEN_FLG | ZEN_FLG));
   delay(5);
   
+  //Serial.println("Updating reg2....");
   // Disable high-pass filter
   updateRegisterI2C(GYRO_ADDR, CTRL_REG2, 0);
   delay(5);
   
+  //Serial.println("Updating reg3...");
   // Disable interrupts, etc.
   updateRegisterI2C(GYRO_ADDR, CTRL_REG3, 0);
   delay(5);
   
+  //Serial.println("Updating reg4....");
   if(GYRO_RATE == GYRO_FS_250) {
   	updateRegisterI2C(GYRO_ADDR, CTRL_REG4, (BE_FLG | GYRO_FS_250));
   	gyroScaleFactor = radians(8.75 / 1000.0);
@@ -127,6 +138,7 @@ void initializeGyro() {
   // Enable high pass filter w/ default values
   //updateRegisterI2C(GYRO_ADDR, CTRL_REG5, HPEN_FLG);
   
+  //Serial.println("Syncronizing...");
   // Wait for synchronization
   delay(100);
   

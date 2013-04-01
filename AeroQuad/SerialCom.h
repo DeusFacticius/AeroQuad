@@ -1091,3 +1091,5 @@ void reportVehicleState() {
 #endif // SlowTelemetry
 
 #endif // _AQ_SERIAL_COMM_
+
+
