@@ -926,6 +926,8 @@ void reportVehicleState() {
     SERIAL_PRINTLN(STM32_BOARD_TYPE);
   #elif defined(MyCustomQuad)
   	SERIAL_PRINTLN("MyCustomQuad");
+  #elif defined(MyCustomQuad_v2)
+  	SERIAL_PRINTLN("MyCustomQuad_v2");
   #endif
 
   SERIAL_PRINT("Flight Config: ");

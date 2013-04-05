@@ -108,7 +108,7 @@ void measureCriticalSensors() {
 
 #ifdef MyCustomQuad_v2
 
-#define WirelessTelemetry
+//#define WirelessTelemetry
 
 #include <Device_I2C.h>
 
@@ -121,9 +121,21 @@ void measureCriticalSensors() {
 #define RECEIVER_MEGA
 #define MOTOR_PWM_Timer
 
+#ifdef AltitudeHoldBaro    
+#define BMP085 
+#endif
+
+#ifdef HeadingMagHold
+#include <Compass.h>
+#define HMC5883L
+#endif
+
 void initPlatform() {
 	Wire.begin();
 	TWBR = 12;
+	
+	pinMode(LED_Green, OUTPUT);
+	pinMode(LED_Red, OUTPUT);
 }
 
 void initializePlatformSpecificAccelCalibration() {
@@ -133,6 +145,12 @@ void initializePlatformSpecificAccelCalibration() {
   accelScaleFactor[XAXIS] = 0.0371299982;
   accelScaleFactor[YAXIS] = -0.0374319982;
   accelScaleFactor[ZAXIS] = -0.0385979986;
+  
+  #ifdef HeadingMagHold
+  magBias[XAXIS]  = 60.000000;
+  magBias[YAXIS]  = -39.000000;
+  magBias[ZAXIS]  = -7.500000;
+  #endif
 }
 
 void measureCriticalSensors() {

@@ -93,8 +93,8 @@
 // For more information on how to activate theese features with your transmitter
 // Please refer to http://aeroquad.com/showwiki.php?title=Using+the+transmitters+sticks+and+switches+to+operate+your+AeroQuad
 // *******************************************************************************************************************************
-//#define HeadingMagHold				// Enables Magnetometer, gets automatically selected if CHR6DM is defined
-//#define AltitudeHoldBaro			// Enables Barometer
+#define HeadingMagHold				// Enables Magnetometer, gets automatically selected if CHR6DM is defined
+#define AltitudeHoldBaro			// Enables Barometer
 //#define AltitudeHoldRangeFinder	// Enables Altitude Hold with range finder, not displayed on the configurator (yet)
 //#define AutoLanding				// Enables auto landing on channel AUX3 of the remote, NEEDS AltitudeHoldBaro AND AltitudeHoldRangeFinder to be defined
 
@@ -153,7 +153,7 @@
 // Optional telemetry (for debug or ground station tracking purposes)
 // For more information on how to setup Telemetry please refer to http://aeroquad.com/showwiki.php?title=Wireless+Connection
 // *******************************************************************************************************************************
-//#define WirelessTelemetry	// Enables Wireless telemetry on Serial3  // Wireless telemetry enable
+#define WirelessTelemetry	// Enables Wireless telemetry on Serial3  // Wireless telemetry enable
 
 //#define MavLink               // Enables the MavLink protocol
 //#define MAV_SYSTEM_ID 100		// Needs to be enabled when using MavLink, used to identify each of your copters using MavLink
