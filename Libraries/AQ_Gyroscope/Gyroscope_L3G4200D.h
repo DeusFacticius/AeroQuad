@@ -77,7 +77,7 @@ int gyroTemperature = 0;
 float gyroTempBiasSlope[3] = { 0.0, 0.0, 0.0 };
 float gyroTempBiasIntercept[3] = { 0.0, 0.0, 0.0 };
 
-int gyroOrientation[3] = { 1, -1, -1 };
+int gyroOrientation[3] = { -1, 1, -1 };
 
 void measureGyroSum();
 void evaluateGyroRate();
