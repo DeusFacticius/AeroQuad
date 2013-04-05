@@ -32,6 +32,8 @@
 #define CTRL_REG3 0x22
 #define CTRL_REG4 0x23
 #define CTRL_REG5 0x24
+#define FIFO_CTRL_REG	0x2E
+#define FIFO_SRC_REG	0x2F
 
 #define TEMP_OUT	0x26
 #define STATUS_REG	0x27
@@ -60,11 +62,23 @@
 #define GYRO_FS_500		0x10
 #define GYRO_FS_2000 	0x30
 
+#define FIFO_EN		0x40
+#define HPF_EN		0x10
+
+#define FM_BYPASS	0x00
+#define FM_FIFO		0x20
+#define FM_STREAM 	0x40
+#define FM_STREAM_FIFO	0x60
+#define FM_BYPASS_FIFO	0x80
+
+#define FIFO_LEVEL_MASK	0x1F
+
+#define FIFO_BUF_SIZE	2*3*32
+
+
 //#define GYRO_RATE GYRO_FS_2000
 //#define GYRO_RATE		GYRO_FS_500
 #define GYRO_RATE		GYRO_FS_250
-
-#define HPEN_FLG	0x10
 
 #define GYRO_BUF_SIZE 6
 
@@ -87,26 +101,18 @@ boolean calibrateGyro();
 void readGyroTemp();
 
 int readGyroReg(byte subaddr) {
-	//Serial.println("Beginning transmission...");
   Wire.beginTransmission(GYRO_ADDR);
-  //Serial.println("Writing subaddr...");
   Wire.write((byte)subaddr);
-  //Serial.println("Ending transmission...");
   Wire.endTransmission();
-  //Serial.println("Delaying...");
-  delay(100);
-  //Serial.println("Requesting from gyro...");
   Wire.requestFrom(GYRO_ADDR, 1);
-  //Serial.println("Reading from gyro...");
+  while(!Wire.available());
   return Wire.read();
 }
 
 void initializeGyro() {
-	//Serial.println("Detecting gyro...");
 	if((readGyroReg(0x0F) & 0xFF) == L3G4200D_IDENTITY)
 	  vehicleState |= GYRO_DETECTED;
 	
-  //Serial.println("Updating reg1...");
 	// Turn on all axes, disable power down,
 	// set output data rate to 400Hz, and
 	// bandwidth to 25 cutoff
@@ -114,36 +120,36 @@ void initializeGyro() {
   	(DR1_FLG | PD_FLG | XEN_FLG | YEN_FLG | ZEN_FLG));
   delay(5);
   
-  //Serial.println("Updating reg2....");
   // Disable high-pass filter
   updateRegisterI2C(GYRO_ADDR, CTRL_REG2, 0);
   delay(5);
   
-  //Serial.println("Updating reg3...");
   // Disable interrupts, etc.
   updateRegisterI2C(GYRO_ADDR, CTRL_REG3, 0);
   delay(5);
   
-  //Serial.println("Updating reg4....");
+  byte reg4_flags = BE_FLG;
   if(GYRO_RATE == GYRO_FS_250) {
-  	updateRegisterI2C(GYRO_ADDR, CTRL_REG4, (BE_FLG | GYRO_FS_250));
+  	reg4_flags |= GYRO_FS_250;
   	gyroScaleFactor = radians(8.75 / 1000.0);
   } else if(GYRO_RATE == GYRO_FS_500) {
-  	updateRegisterI2C(GYRO_ADDR, CTRL_REG4, (BE_FLG | GYRO_FS_500));
+  	reg4_flags |= GYRO_FS_500;
   	gyroScaleFactor = radians(17.50 / 1000.0);
   } else if(GYRO_RATE == GYRO_FS_2000) {
-  	updateRegisterI2C(GYRO_ADDR, CTRL_REG4, (BE_FLG | GYRO_FS_2000));
+  	reg4_flags |= GYRO_FS_2000;
   	gyroScaleFactor = radians(70.00 / 1000.0);
   }
   
-  // Enable high pass filter w/ default values
-  //updateRegisterI2C(GYRO_ADDR, CTRL_REG5, HPEN_FLG);
+  updateRegisterI2C(GYRO_ADDR, CTRL_REG4, reg4_flags);
+  delay(5);
   
-  //Serial.println("Syncronizing...");
-  // Wait for synchronization
-  delay(100);
+  // enable FIFO
+  updateRegisterI2C(GYRO_ADDR, CTRL_REG5, FIFO_EN);
+  delay(5);
   
-  //gyroScaleFactor = radians(17.50 / 1000.0);
+  // configure FIFO
+  updateRegisterI2C(GYRO_ADDR, FIFO_CTRL_REG, FM_STREAM);
+  delay(5);
 }
 
 void computeGyroTCBias() {
@@ -151,6 +157,18 @@ void computeGyroTCBias() {
 	
 	for(byte axis = XAXIS; axis <= ZAXIS; axis++)
 		gyroTempBias[axis] = gyroTempBiasSlope[axis] * gyroTemperature + gyroTempBiasIntercept[axis];
+}
+
+int gyroFifoBuf[3 * 32];
+
+void readGyroFifo() {
+	byte count = 0;
+	count = readGyroReg(FIFO_SRC_REG);
+	sendByteI2C(GYRO_ADDR, (X_OUT_L | SEQ_READ_FLG));
+	Wire.requestFrom(GYRO_ADDR, count * GYRO_BUF_SIZE);
+	int *end = gyroFifoBuf + (count * 3);
+	for(int *iter = gyroFifoBuf; iter < end; iter++)
+		*iter = readWordI2C();
 }
 
 void measureGyroADC(int *gyroADC) {
