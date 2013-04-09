@@ -61,8 +61,8 @@
 #define GYRO_FS_2000 	0x30
 
 //#define GYRO_RATE GYRO_FS_2000
-//#define GYRO_RATE		GYRO_FS_500
-#define GYRO_RATE		GYRO_FS_250
+#define GYRO_RATE		GYRO_FS_500
+//#define GYRO_RATE		GYRO_FS_250
 
 #define HPEN_FLG	0x10
 

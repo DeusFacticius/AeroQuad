@@ -183,7 +183,7 @@ void processZeroThrottleFunctionFromReceiverCommand() {
 	
 	
   // Disarm motors (left stick lower left corner)
-  if (receiverCommandSmooth[ZAXIS] < MINCHECK && motorArmed == ON) {
+  if (receiverData[ZAXIS] < MINCHECK && motorArmed == ON) {
     commandAllMotors(MINCOMMAND);
     motorArmed = OFF;
     inFlight = false;
@@ -200,7 +200,7 @@ void processZeroThrottleFunctionFromReceiverCommand() {
   }    
 
   // Zero Gyro and Accel sensors (left stick lower left, right stick lower right corner)
-  if ((receiverCommandSmooth[ZAXIS] < MINCHECK) && (receiverCommandSmooth[XAXIS] > MAXCHECK) && (receiverCommandSmooth[YAXIS] < MINCHECK)) {
+  if ((receiverData[ZAXIS] < MINCHECK) && (receiverData[XAXIS] > MAXCHECK) && (receiverData[YAXIS] < MINCHECK)) {
     calibrateGyro();
     computeAccelBias();
     storeSensorsZeroToEEPROM();
@@ -210,7 +210,7 @@ void processZeroThrottleFunctionFromReceiverCommand() {
   }   
 
   // Arm motors (left stick lower right corner)
-  if (receiverCommandSmooth[ZAXIS] > MAXCHECK && motorArmed == OFF && safetyCheck == ON) {
+  if (receiverData[ZAXIS] > MAXCHECK && motorArmed == OFF && safetyCheck == ON) {
 
     #ifdef OSD_SYSTEM_MENU
       if (menuOwnsSticks) {
